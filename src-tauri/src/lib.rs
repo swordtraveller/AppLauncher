@@ -6,8 +6,10 @@
 use std::path::Path;
 use std::process::Command;
 use tauri_plugin_log::{Target, TargetKind};
+use tauri::Manager;
 use lnk::ShellLink;
 use windows_icons::get_icon_base64_by_path;
+use window_vibrancy::{apply_blur, apply_vibrancy, apply_mica, apply_acrylic, NSVisualEffectMaterial};
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -47,6 +49,19 @@ fn is_shortcut(path: &str) -> bool {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .setup(|app| {
+            let window = app.get_webview_window("main").unwrap();
+
+            // #[cfg(target_os = "macos")]
+            // apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None)
+            //     .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
+
+            #[cfg(target_os = "windows")]
+            apply_acrylic(&window, Some((0, 0, 0, (256.0_f64 * 0.2_f64).round() as u8)))
+                .expect("Unsupported platform! 'apply_acrylic' is only supported on Windows");
+
+            Ok(())
+        })
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())

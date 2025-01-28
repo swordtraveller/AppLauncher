@@ -111,6 +111,7 @@ dependencies = [
  "tauri-plugin-log",
  "tauri-plugin-opener",
  "tauri-plugin-shell",
+ "window-vibrancy",
  "windows-icons",
 ]
 
