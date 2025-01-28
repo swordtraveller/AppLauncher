@@ -15,6 +15,9 @@ Maybe in the future, we will introduce some linters and formatters to solve the 
 
 ## How to Run the Project
 
+Note:  
+> 开发期间需要先自己建好 `~\AppData\Roaming\applauncher.io.github.swordtraveller` 目录，这个目录是与 tauri 包名相对应的，否则无法创建持久化所需的文件。  
+
 The following script is based on Windows Powershell test, using pnpm as the package manager:  
 
 ```powershell
