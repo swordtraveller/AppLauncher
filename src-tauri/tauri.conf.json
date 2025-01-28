@@ -5,7 +5,7 @@
   "identifier": "applauncher.io.github.swordtraveller",
   "build": {
     "beforeDevCommand": "pnpm dev",
-    "devUrl": "http://localhost:1420",
+    "devUrl": "http://localhost:14201",
     "beforeBuildCommand": "pnpm build",
     "frontendDist": "../dist"
   },
