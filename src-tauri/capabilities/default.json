@@ -25,6 +25,7 @@
     "fs:allow-exists",
     "fs:allow-create",
     "fs:allow-read-text-file",
-    "fs:allow-write-text-file"
+    "fs:allow-write-text-file",
+    "process:default"
   ]
 }

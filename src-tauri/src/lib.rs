@@ -3,13 +3,15 @@
     windows_subsystem = "windows"
 )]
 
+use lnk::ShellLink;
 use std::path::Path;
 use std::process::Command;
-use tauri_plugin_log::{Target, TargetKind};
 use tauri::Manager;
-use lnk::ShellLink;
+use tauri_plugin_log::{Target, TargetKind};
+use window_vibrancy::{
+    apply_acrylic, apply_blur, apply_mica, apply_vibrancy, NSVisualEffectMaterial,
+};
 use windows_icons::get_icon_base64_by_path;
-use window_vibrancy::{apply_blur, apply_vibrancy, apply_mica, apply_acrylic, NSVisualEffectMaterial};
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -49,6 +51,7 @@ fn is_shortcut(path: &str) -> bool {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_process::init())
         .setup(|app| {
             let window = app.get_webview_window("main").unwrap();
 
@@ -57,8 +60,11 @@ pub fn run() {
             //     .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
 
             #[cfg(target_os = "windows")]
-            apply_acrylic(&window, Some((0, 0, 0, (256.0_f64 * 0.2_f64).round() as u8)))
-                .expect("Unsupported platform! 'apply_acrylic' is only supported on Windows");
+            apply_acrylic(
+                &window,
+                Some((0, 0, 0, (256.0_f64 * 0.2_f64).round() as u8)),
+            )
+            .expect("Unsupported platform! 'apply_acrylic' is only supported on Windows");
 
             Ok(())
         })
@@ -77,10 +83,7 @@ pub fn run() {
                 .build(),
         )
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![
-            launch_app,
-            img_path_to_base64,
-        ])
+        .invoke_handler(tauri::generate_handler![launch_app, img_path_to_base64,])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

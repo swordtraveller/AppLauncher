@@ -26,6 +26,8 @@ import {
   Label,
 } from "@fluentui/react-components";
 import { AddSquareRegular, Delete16Regular, Rename16Regular } from '@fluentui/react-icons';
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { exit } from '@tauri-apps/plugin-process';
 import { trace, info } from '@tauri-apps/plugin-log';
 import { readTextFile, BaseDirectory } from '@tauri-apps/plugin-fs';
 import { v7 as uuidv7 } from 'uuid';
@@ -44,6 +46,7 @@ function App(props: Partial<TabListProps>) {
   const addTabItem = useStore(state => state.addTabItem);
   const delTabItem = useStore(state => state.delTabItem);
   const renameTabItem = useStore(state => state.renameTabItem);
+  const saveData = useStore(state => state.saveData);
 
   const [isTabItemMenuOpen] = useState<Map<string, boolean>>(new Map<string, boolean>);
 
@@ -98,6 +101,8 @@ function App(props: Partial<TabListProps>) {
 
   const styles = useStyles();
 
+  let unlistenWindowCloseEvent: any = null;
+
   useEffect(() => {
     info("useEffect");
 
@@ -134,6 +139,32 @@ function App(props: Partial<TabListProps>) {
     }).catch(error => {
       error(error);
     });
+
+    const setupListener = async () => {
+      // 监听窗口关闭请求事件
+      unlistenWindowCloseEvent = await getCurrentWindow().onCloseRequested(async () => {
+        await saveData();
+        // 注意不要用 close()，它只是再一次发出closeRequested事件，然后又被这里的listener捕获
+        // destroy() 也没有效果，原因不明
+        info("User exit the app");
+        await exit(0);
+      });
+      // 以后调用unlistenWindowCloseEvent()可以卸载监听
+    }
+
+    try {
+      setupListener();
+    } catch (error) {
+
+    }
+
+    // 组件卸载时，移除事件监听器
+    return () => {
+        info("卸载");
+        info("移除监听");
+        unlistenWindowCloseEvent();
+    };
+
   }, []);
 
   return (

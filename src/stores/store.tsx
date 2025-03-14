@@ -17,6 +17,7 @@ interface StoreState {
     addTabItem: (tabId: TabId, tabItem: TabItem) => void;
     delTabItem: (tabId: TabId) => void;
     renameTabItem: (tabId: TabId, newName: string) => void;
+    saveData: () => Promise<void>;
 }
 
 const saveAppDict = async (map: Map<AppId, AppItem>) => {
@@ -114,7 +115,7 @@ const saveTabDict = async (map: Map<TabId, TabItem>) => {
 }
 
 // zustand是浅比较，想要触发更新需要使得对象引用发生变化
-const useStore = create<StoreState>()((set) => ({
+const useStore = create<StoreState>()((set, get) => ({
     appDict: new Map<AppId, AppItem>,
     tabDict: new Map<TabId, TabItem>,
 
@@ -132,8 +133,6 @@ const useStore = create<StoreState>()((set) => ({
             trace("item: " + item);
         })
 
-        saveAppDict(state.appDict);
-        saveTabDict(state.tabDict);
         return {
             appDict: new Map([...state.appDict]),
             tabDict: new Map([...state.tabDict]),
@@ -148,8 +147,6 @@ const useStore = create<StoreState>()((set) => ({
         }
         state.appDict.delete(appId);
 
-        saveAppDict(state.appDict);
-        saveTabDict(state.tabDict);
         return {
             appDict: new Map([...state.appDict]),
             tabDict: new Map([...state.tabDict]),
@@ -159,8 +156,6 @@ const useStore = create<StoreState>()((set) => ({
     renameAppItem: (appId: AppId, newName: string) => set((state) => {
         state.appDict.get(appId)!.name = newName;
 
-        saveAppDict(state.appDict);
-        saveTabDict(state.tabDict);
         return {
             appDict: new Map([...state.appDict]),
             tabDict: new Map([...state.tabDict]),
@@ -178,8 +173,6 @@ const useStore = create<StoreState>()((set) => ({
             })
         });
 
-        saveAppDict(state.appDict);
-        saveTabDict(state.tabDict);
         return {
             appDict: new Map([...state.appDict]),
             tabDict: new Map([...state.tabDict]),
@@ -189,8 +182,6 @@ const useStore = create<StoreState>()((set) => ({
     delTabItem: (tabId: TabId) => set((state) => {
         state.tabDict.delete(tabId);
 
-        saveAppDict(state.appDict);
-        saveTabDict(state.tabDict);
         return {
             appDict: new Map([...state.appDict]),
             tabDict: new Map([...state.tabDict]),
@@ -200,13 +191,16 @@ const useStore = create<StoreState>()((set) => ({
     renameTabItem: (tabId: TabId, newName: string) => set((state) => {
         state.tabDict.get(tabId)!.name = newName;
 
-        saveAppDict(state.appDict);
-        saveTabDict(state.tabDict);
         return {
             appDict: new Map([...state.appDict]),
             tabDict: new Map([...state.tabDict]),
         }
     }),
+
+    saveData: async () => {
+        await saveAppDict(get().appDict);
+        await saveTabDict(get().tabDict);
+    },
 
 }));
 
