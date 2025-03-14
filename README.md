@@ -2,6 +2,11 @@
 
 An App launcher.  
 
+## Effect Display
+
+<img src="docs/README/assets/miku.png" style="width: 48rem" />
+<img src="docs/README/assets/migames.png" style="width: 48rem" />
+
 ## Development Specifications
 
 We don't have the energy to write a complete development specification yet. At this stage, we ensure compliance through code review.  
