@@ -32,7 +32,32 @@ fn launch_app(_app_handle: tauri::AppHandle, path: &str) -> String {
     }
     log::info!("command_path: {:?}", path);
 
-    let _child = Command::new(command_path).spawn().expect("failed");
+    let _child = Command::new(command_path).spawn();
+    match _child {
+        Ok(mut _child) => {
+            log::info!("Successfully executed process");
+        }
+        Err(e) => {
+            match e.raw_os_error() {
+                Some(740) => {
+                    log::info!("The first call returns 740, and then try to start with elevated permissions");
+                    let _new_child = if cfg!(target_os = "windows") {
+                        Command::new("cmd")
+                            .args(&["/C", command_path])
+                            .spawn()
+                            .expect("Failed to execute process");
+                    };
+                }
+                Some(code) => {
+                    log::error!("Other OS error code: {}", code);
+                    log::error!("{}", e);
+                }
+                None => {
+                    log::error!("{}", e);
+                }
+            }
+        }
+    }
     return "finish".to_string();
 }
 
